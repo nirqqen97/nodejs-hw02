@@ -1,6 +1,9 @@
+const User = require("../models/contactModal");
 const { addContact } = require("../models/contacts");
 const uservalidator = require("../utils/uservalidator");
 const createContact = async (req, res, next) => {
+  
+  
     
     const { error, value } = uservalidator(req.body)
     if (error) {
@@ -9,7 +12,10 @@ const createContact = async (req, res, next) => {
         return next(err)
         
     }
-    const {name,email,phone} = value;
+    
+    const {name,email,phone, role} = value;
+    
+
     if (!name || !email || !phone) {
       res.status(400).json({
         message : "missing required name field"  
@@ -17,12 +23,20 @@ const createContact = async (req, res, next) => {
       return
     }
     
-     await addContact   (name,email,phone)
-     res.status(201).json({
-       name,
-       email,
-       phone,
-     })
+     await addContact   (name,email,phone,role)
+    const userExist = await User.exists({email})
+    console.log('userExist: ', userExist);
+    if (userExist) {
+      const newContact = await addContact(name,email,phone,role)
+      res.status(201).json({
+       newContact
+      })
+      return
+    }
+    res.status(409).json({
+      message : 'Contacts exist'
+    })
+ 
   }
 
 module.exports = createContact

@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs').promises;
-const shortid = require('shortid');
+const User = require('./contactModal');
 
  
  const contactsPath = path.join('models', 'contacts.json');
@@ -9,18 +9,17 @@ const shortid = require('shortid');
    *  @param {Promise<JSON>}
    */
  const  listContacts = async () => {
-    const readRes = await fs.readFile(contactsPath);
-    const infoJs = JSON.parse(readRes)
-    return infoJs
+   const info = User.find()
+    return info
   }
   /** get contacts by ID
    * @param {Number} contactId 
    */
   
   const getContactById = async (contactId) =>  {
-    const list = await Contacts()
-    const contact = list.find(item => item.id === `${contactId}`)
-    return contact
+    const user = await User.findById(contactId)
+    
+    return user
   }
   /** func to delete contacts by id 
    * 
@@ -28,12 +27,9 @@ const shortid = require('shortid');
    * @returns {Promise<Object>}
    */
   
-  const removeContact = async(contactId)  =>{
-    const list = await Contacts()
-    const index = list.findIndex((item) => item.id === contactId)
-    const removed = list.splice(index, 1);
-    await fs.writeFile(contactsPath, JSON.stringify(list, null, 2));
-    return removed[0];
+  const removeContact = async(id)  =>{
+    const deletedUser = await User.findOneAndDelete(id)
+    return deletedUser;
   }
 
   /** func to add contact 
@@ -44,19 +40,15 @@ const shortid = require('shortid');
    * @returns {Promise<Object>}
    */
   
-  const addContact = async (name, email, phone) => {
-    const list = await Contacts();
+  const addContact = async (name, email, phone,role) => {    
     const newContact = {
-      id: shortid.generate(),
       name,
       email,
-      phone
+      phone,
+      role
     };
-    list.push(newContact);
-    await fs.writeFile(contactsPath, JSON.stringify(list, null, 2));
-    
-    return newContact;
-    
+    const newUser = await User.create(newContact)
+    return newUser
   };
 
   const Contacts = async() =>{
@@ -65,9 +57,6 @@ const shortid = require('shortid');
     return infoJs
   }
 
-  
-
-  
 module.exports = {  
     listContacts,
     getContactById,
