@@ -23,7 +23,7 @@ const createContact = async (req, res, next) => {
       return
     }
     
-     await addContact   (name,email,phone,role)
+    //  await addContact   (name,email,phone,role)
     const userExist = await User.exists({email})
     console.log('userExist: ', userExist);
     if (userExist) {
